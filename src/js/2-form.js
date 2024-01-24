@@ -1,44 +1,27 @@
-const form = document.querySelector('.feedback-form');
+document.addEventListener('DOMContentLoaded', () => {
+  const form = document.querySelector('.feedback-form');
 
-const email = form.elements.email;
-const message = form.elements.message;
+  const storedData = JSON.parse(localStorage.getItem('feedback-form-state')) || {};
+  form.email.value = storedData.email || '';
+  form.message.value = storedData.message || '';
 
-const localStorageKey = 'feedback-form-state';
+  form.addEventListener('input', (event) => {
+    const { name, value } = event.target;
+    const currentState = JSON.parse(localStorage.getItem('feedback-form-state')) || {};
+    const newState = { ...currentState, [name]: value };
+    localStorage.setItem('feedback-form-state', JSON.stringify(newState));
+  });
 
-const parsedSettings = JSON.parse(localStorage.getItem(localStorageKey));
+  form.addEventListener('submit', (event) => {
+    event.preventDefault();
 
-if (typeof parsedSettings === 'object' && parsedSettings !== null) {
-  if (parsedSettings.hasOwnProperty(email)) {
-    email.value = parsedSettings.email;
-  }
-  if (parsedSettings.hasOwnProperty(message)) {
-    message.value = parsedSettings.message;
-  }
-}
+    localStorage.removeItem('feedback-form-state');
+    form.reset();
 
-form.addEventListener('input', () => {
-  const inputEmail = email.value.trim();
-  const inputMessage = message.value.trim();
-
-  localStorage.setItem(
-    localStorageKey,
-    JSON.stringify({ email: inputEmail, message: inputMessage })
-  );
-  parsedSettings.email = inputEmail;
-  parsedSettings.message = inputMessage;
-});
-
-form.addEventListener('submit', event => {
-  event.preventDefault();
-
-  if (email.value && message.value) {
-    console.log(parsedSettings);
-  } else {
-    alert('Fill in all fields of the form');
-    localStorage.removeItem(localStorageKey);
-  }
-
-  email.value = '';
-  message.value = '';
-  form.reset();
+    const formData = {
+      email: form.email.value,
+      message: form.message.value,
+    };
+    console.log(formData);
+  });
 });
